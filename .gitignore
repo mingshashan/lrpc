@@ -28,3 +28,8 @@ hs_err_pid*
 
 *.classpath
 *.class
+
+
+target/
+*/target/*
+*/target
