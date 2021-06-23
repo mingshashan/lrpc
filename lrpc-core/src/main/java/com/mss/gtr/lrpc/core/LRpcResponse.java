@@ -3,7 +3,7 @@ package com.mss.gtr.lrpc.core;
 /**
  * 封装响应对象
  */
-public class LResponse<T> {
+public class LRpcResponse<T> {
     /**
      * 响应数据
      */

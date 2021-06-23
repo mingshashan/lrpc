@@ -3,7 +3,7 @@ package com.mss.gtr.lrpc.core;
 /**
  * 封装RPC请求对象
  */
-public class LRequest {
+public class LRpcRequest {
     /**
      *
      */
