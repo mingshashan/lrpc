@@ -19,5 +19,20 @@ public class LRpcProtocol<T> implements Serializable {
      */
     private T body;
 
+    public MessageHeader getMessageHeader() {
+        return messageHeader;
+    }
+
+    public void setMessageHeader(MessageHeader messageHeader) {
+        this.messageHeader = messageHeader;
+    }
+
+    public T getBody() {
+        return body;
+    }
+
+    public void setBody(T body) {
+        this.body = body;
+    }
 }
 

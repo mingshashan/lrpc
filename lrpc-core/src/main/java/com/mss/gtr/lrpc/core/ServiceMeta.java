@@ -3,27 +3,12 @@ package com.mss.gtr.lrpc.core;
 /**
  * 服务元信息
  */
-public class ServiceMate {
+public class ServiceMeta {
 
-    /**
-     * 服务名称
-     */
     private String serviceName;
-
-    /**
-     * 服务版本
-     */
     private String serviceVersion;
-
-    /**
-     * 服务IP地址
-     */
-    private String addr;
-
-    /**
-     * 服务端口
-     */
-    private String port;
+    private String serviceAddr;
+    private int servicePort;
 
     public String getServiceName() {
         return serviceName;
@@ -41,19 +26,19 @@ public class ServiceMate {
         this.serviceVersion = serviceVersion;
     }
 
-    public String getAddr() {
-        return addr;
+    public String getServiceAddr() {
+        return serviceAddr;
     }
 
-    public void setAddr(String addr) {
-        this.addr = addr;
+    public void setServiceAddr(String serviceAddr) {
+        this.serviceAddr = serviceAddr;
     }
 
-    public String getPort() {
-        return port;
+    public int getServicePort() {
+        return servicePort;
     }
 
-    public void setPort(String port) {
-        this.port = port;
+    public void setServicePort(int servicePort) {
+        this.servicePort = servicePort;
     }
 }
