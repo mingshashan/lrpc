@@ -1,0 +1,11 @@
+server:
+  port: 15051
+
+spring:
+  application:
+    name: lrpc-provider
+
+lrpc:
+  port: 15151
+  registry-addr: localhost:2881
+  registry-type: ZOOKEEPER

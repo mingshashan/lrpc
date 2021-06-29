@@ -1,5 +1,6 @@
 package com.mss.gtr.lrpc.registry.loadbalancer;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -10,5 +11,5 @@ import java.util.List;
 public interface ServiceLoadBalancer<T> {
 
 
-    T select(List<T> servers, int hashCode);
+    T select(Collection<T> servers, int hashCode);
 }

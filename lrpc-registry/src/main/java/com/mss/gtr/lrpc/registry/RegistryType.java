@@ -8,4 +8,6 @@ public enum RegistryType {
     RegistryType(int type) {
         this.type = type;
     }
+
+
 }

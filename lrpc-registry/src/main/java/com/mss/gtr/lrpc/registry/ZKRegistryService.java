@@ -2,6 +2,7 @@ package com.mss.gtr.lrpc.registry;
 
 import com.mss.gtr.lrpc.core.ServiceMeta;
 import com.mss.gtr.lrpc.core.util.LRpcServiceHelper;
+import com.mss.gtr.lrpc.registry.loadbalancer.ZKConsistentHashLoadBalancer;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
@@ -68,8 +69,13 @@ public class ZKRegistryService implements RegistryService {
         Collection<ServiceInstance<ServiceMeta>> serviceInstances =
                 serviceDiscovery.queryForInstances(serviceName);
 
-        ServiceInstance<ServiceMeta> = new ZkConstan
-        return null;
+        ServiceInstance<ServiceMeta> instance = new ZKConsistentHashLoadBalancer()
+                .select(serviceInstances, invokerHashCode);
+
+        if (null == instance) {
+            return null;
+        }
+        return instance.getPayload();
     }
 
     @Override

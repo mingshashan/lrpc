@@ -3,6 +3,7 @@ package com.mss.gtr.lrpc.registry.loadbalancer;
 import com.mss.gtr.lrpc.core.ServiceMeta;
 import org.apache.curator.x.discovery.ServiceInstance;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,7 +14,7 @@ public class ZKConsistentHashLoadBalancer implements ServiceLoadBalancer<Service
     private static final String VIRTUAL_NODE_SPLIT = "#";
 
     @Override
-    public ServiceInstance<ServiceMeta> select(List<ServiceInstance<ServiceMeta>> servers, int hashCode) {
+    public ServiceInstance<ServiceMeta> select(Collection<ServiceInstance<ServiceMeta>> servers, int hashCode) {
 
         TreeMap<Integer, ServiceInstance<ServiceMeta>> ring = makeConsistentHashRing(servers);
 
@@ -28,7 +29,7 @@ public class ZKConsistentHashLoadBalancer implements ServiceLoadBalancer<Service
         return entry.getValue();
     }
 
-    private TreeMap<Integer, ServiceInstance<ServiceMeta>> makeConsistentHashRing(List<ServiceInstance<ServiceMeta>> servers) {
+    private TreeMap<Integer, ServiceInstance<ServiceMeta>> makeConsistentHashRing(Collection<ServiceInstance<ServiceMeta>> servers) {
         TreeMap<Integer, ServiceInstance<ServiceMeta>> ring = new TreeMap<>();
         for (ServiceInstance<ServiceMeta> instance : servers) {
             for (int i = 0; i < VIRTUAL_NODE_SIZE; i++) {
