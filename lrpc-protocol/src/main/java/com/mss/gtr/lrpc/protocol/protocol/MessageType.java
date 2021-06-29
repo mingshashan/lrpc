@@ -16,12 +16,12 @@ public enum MessageType {
     /**
      * response
      */
-    RESPONSE(0b00000001),
+    RESPONSE(0b00000011),
 
     /**
      * heartbeat
      */
-    HEARTBEAT(0b00000001);
+    HEARTBEAT(0b00000111);
 
     private final int type;
 

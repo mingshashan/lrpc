@@ -7,4 +7,5 @@ public class LRpcProperties {
     private String registryAddr;
 
     private String registryType;
+
 }
