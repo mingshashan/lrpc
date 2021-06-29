@@ -10,6 +10,8 @@ import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 
+import java.util.Collection;
+
 public class ZKRegistryService implements RegistryService {
 
     public static final int BASE_SLEEP_TIME_MS = 1000;
@@ -63,7 +65,10 @@ public class ZKRegistryService implements RegistryService {
     @Override
     public ServiceMeta discovery(String serviceName, int invokerHashCode) throws Exception {
 
-        serviceDiscovery.queryForInstance()
+        Collection<ServiceInstance<ServiceMeta>> serviceInstances =
+                serviceDiscovery.queryForInstances(serviceName);
+
+        ServiceInstance<ServiceMeta> = new ZkConstan
         return null;
     }
 

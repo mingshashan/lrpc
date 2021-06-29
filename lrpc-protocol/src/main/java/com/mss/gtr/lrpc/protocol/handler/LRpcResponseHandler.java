@@ -17,7 +17,7 @@ public class LRpcResponseHandler extends SimpleChannelInboundHandler<LRpcProtoco
         LRpcFuture<LRpcResponse> future = LRpcRequestHolder.REQUEST_MAP
                 .remove(requestId);
 
-        future.getPromise().setSuccess(msg.getBody()    );
+        future.getPromise().setSuccess(msg.getBody());
 
     }
 }

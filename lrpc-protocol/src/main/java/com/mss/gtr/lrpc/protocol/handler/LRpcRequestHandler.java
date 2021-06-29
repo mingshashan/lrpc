@@ -1,5 +1,6 @@
 package com.mss.gtr.lrpc.protocol.handler;
 
+import com.mss.gtr.lrpc.core.LRpcException;
 import com.mss.gtr.lrpc.core.LRpcRequest;
 import com.mss.gtr.lrpc.core.LRpcResponse;
 import com.mss.gtr.lrpc.core.util.LRpcServiceHelper;
@@ -8,13 +9,19 @@ import com.mss.gtr.lrpc.protocol.MessageHeader;
 import com.mss.gtr.lrpc.protocol.protocol.MessageType;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import net.sf.cglib.reflect.FastClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 /**
  * 请求处理
  */
 public class LRpcRequestHandler extends SimpleChannelInboundHandler<LRpcProtocol<LRpcRequest>> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LRpcRequestHandler.class);
 
     private final Map<String, Object> rpcServiceMap;
 
@@ -31,21 +38,49 @@ public class LRpcRequestHandler extends SimpleChannelInboundHandler<LRpcProtocol
             MessageHeader header = msg.getMessageHeader();
             header.setMsgType((byte) MessageType.RESPONSE.getType());
 
-            Object result = handleRequest(msg.getBody());
-            lRpcResponse.setData(result);
-            lRpcResponse.setCode("200");
-            lRpcResponse.setMessage("OK");
-
+            Object result = null;
             MessageHeader responseHeader = new MessageHeader();
-            responseHeader.setStatus((byte) 200);
-            protocol.setBody(lRpcResponse);
-            protocol.setMessageHeader(responseHeader);
+            try {
+                result = handleRequest(msg.getBody());
+                lRpcResponse.setData(result);
+                lRpcResponse.setCode("200");
+                lRpcResponse.setMessage("OK");
+
+
+                responseHeader.setStatus((byte) 200);
+                protocol.setBody(lRpcResponse);
+                protocol.setMessageHeader(responseHeader);
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+                responseHeader.setStatus((byte) 500);
+                lRpcResponse.setMessage(e.toString());
+                LOGGER.error("process request {} error", header.getRequestId(), e);
+            }
+
             ctx.writeAndFlush(protocol);
         });
     }
 
-    private Object handleRequest(LRpcRequest body) {
-//        String serviceKey = LRpcServiceHelper.buildServiceKey()
-        return null;
+    private Object handleRequest(LRpcRequest request) throws InvocationTargetException {
+        String serviceKey = LRpcServiceHelper.buildServiceKey(request.getClassName(),
+                request.getVersion());
+
+        Object serviceBean = rpcServiceMap.get(serviceKey);
+
+        if (null == serviceBean) {
+            throw new LRpcException(String.format("service not exist, %s:%s\n",
+                    request.getClassName(), request.getVersion()));
+        }
+
+        Class<?> clazz = request.getClass();
+        String methodName = request.getMethodName();
+        Class<?>[] parametersType = request.getParameterTypes();
+        Object[] parameters = request.getParameters();
+
+
+        FastClass fastClass = FastClass.create(clazz);
+        int methodIndex = fastClass.getIndex(methodName, parametersType);
+
+        return fastClass.invoke(methodIndex, serviceBean, parameters);
     }
 }
