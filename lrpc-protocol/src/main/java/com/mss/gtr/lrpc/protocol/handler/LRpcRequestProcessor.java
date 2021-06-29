@@ -4,6 +4,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 请求任务提交
+ */
 public class LRpcRequestProcessor {
 
     private static ThreadPoolExecutor threadPoolExecutor;
