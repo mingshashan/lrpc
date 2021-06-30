@@ -38,7 +38,7 @@ public class HessianSerialization implements LRpcSerialization {
                 logger.debug("hessian end serialize data, cost time = {}", (System.currentTimeMillis() - beginTime));
             }
         } catch (Exception e) {
-            logger.error("hessian serialize date error, cost time = {}", (System.currentTimeMillis() - beginTime));
+            logger.error("hessian serialize date error, cost time = {}", (System.currentTimeMillis() - beginTime), e);
             throw new SerializationException(e);
         } finally {
             if (null != hessianSerializerOutput) {

@@ -1,0 +1,12 @@
+server:
+  port: 15052
+
+spring:
+  application:
+    name: lrpc-provider
+
+lrpc:
+  registry-addr: localhost:12181
+  registry-type: ZOOKEEPER
+  timeout: 3000
+  service-version: 1.0

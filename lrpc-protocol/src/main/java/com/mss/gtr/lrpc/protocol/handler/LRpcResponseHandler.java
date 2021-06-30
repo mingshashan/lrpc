@@ -10,14 +10,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class LRpcResponseHandler extends SimpleChannelInboundHandler<LRpcProtocol<LRpcResponse>> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, LRpcProtocol<LRpcResponse> msg) throws Exception {
-
+    protected void channelRead0(ChannelHandlerContext ctx, LRpcProtocol<LRpcResponse> msg) {
         long requestId = msg.getMessageHeader().getRequestId();
-
-        LRpcFuture<LRpcResponse> future = LRpcRequestHolder.REQUEST_MAP
-                .remove(requestId);
-
+        LRpcFuture<LRpcResponse> future = LRpcRequestHolder.REQUEST_MAP.remove(requestId);
         future.getPromise().setSuccess(msg.getBody());
-
     }
 }

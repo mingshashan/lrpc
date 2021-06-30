@@ -15,7 +15,7 @@ public class LRpcRequestProcessor {
         if (null == threadPoolExecutor) {
             threadPoolExecutor = new ThreadPoolExecutor(
                     10, 20, 60, TimeUnit.SECONDS,
-                    new ArrayBlockingQueue<>(Integer.MAX_VALUE)
+                    new ArrayBlockingQueue<>(1000)
             );
         }
         threadPoolExecutor.submit(task);

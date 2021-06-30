@@ -19,4 +19,9 @@ public interface ProtocolConstant {
      * 版本
      */
     byte LRPC_VERSION = 0x01;
+
+    /**
+     * 默认状态
+     */
+    byte LRPC_STATUS_DEFAULT = 0x01;
 }
