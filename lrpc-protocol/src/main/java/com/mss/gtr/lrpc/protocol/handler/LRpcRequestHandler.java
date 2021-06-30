@@ -12,6 +12,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import net.sf.cglib.reflect.FastClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -39,20 +40,18 @@ public class LRpcRequestHandler extends SimpleChannelInboundHandler<LRpcProtocol
             header.setMsgType((byte) MessageType.RESPONSE.getType());
 
             Object result = null;
-            MessageHeader responseHeader = new MessageHeader();
             try {
                 result = handleRequest(msg.getBody());
                 lRpcResponse.setData(result);
                 lRpcResponse.setCode("200");
                 lRpcResponse.setMessage("OK");
 
-
-                responseHeader.setStatus((byte) 200);
+                header.setStatus((byte) 200);
                 protocol.setBody(lRpcResponse);
-                protocol.setMessageHeader(responseHeader);
+                protocol.setMessageHeader(header);
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
-                responseHeader.setStatus((byte) 500);
+                header.setStatus((byte) 500);
                 lRpcResponse.setMessage(e.toString());
                 LOGGER.error("process request {} error", header.getRequestId(), e);
             }
@@ -72,7 +71,7 @@ public class LRpcRequestHandler extends SimpleChannelInboundHandler<LRpcProtocol
                     request.getClassName(), request.getVersion()));
         }
 
-        Class<?> clazz = request.getClass();
+        Class<?> clazz = ClassUtils.resolveClassName(request.getClassName(), this.getClass().getClassLoader());
         String methodName = request.getMethodName();
         Class<?>[] parametersType = request.getParameterTypes();
         Object[] parameters = request.getParameters();
@@ -81,6 +80,8 @@ public class LRpcRequestHandler extends SimpleChannelInboundHandler<LRpcProtocol
         FastClass fastClass = FastClass.create(clazz);
         int methodIndex = fastClass.getIndex(methodName, parametersType);
 
-        return fastClass.invoke(methodIndex, serviceBean, parameters);
+        Object result = fastClass.invoke(methodIndex, serviceBean, parameters);
+
+        return result;
     }
 }

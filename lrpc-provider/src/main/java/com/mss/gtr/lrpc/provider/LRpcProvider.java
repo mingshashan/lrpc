@@ -3,13 +3,18 @@ package com.mss.gtr.lrpc.provider;
 import com.mss.gtr.lrpc.core.LRpcException;
 import com.mss.gtr.lrpc.core.ServiceMeta;
 import com.mss.gtr.lrpc.core.annotation.RpcService;
+import com.mss.gtr.lrpc.core.util.LRpcServiceHelper;
 import com.mss.gtr.lrpc.protocol.codec.LRpcDecoder;
 import com.mss.gtr.lrpc.protocol.codec.LRpcEncoder;
 import com.mss.gtr.lrpc.protocol.handler.LRpcRequestHandler;
 import com.mss.gtr.lrpc.registry.RegistryService;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,16 +65,17 @@ public class LRpcProvider implements InitializingBean, BeanPostProcessor {
         ServerBootstrap serverBootstrap = new ServerBootstrap()
                 .group(boss, worker)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<Channel>() {
+                .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(Channel ch) throws Exception {
+                    protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline()
                                 .addLast(new LRpcEncoder())
                                 .addLast(new LRpcDecoder())
                                 .addLast(new LRpcRequestHandler(rpcServiceMap));
                     }
                 }).childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childOption(ChannelOption.TCP_NODELAY, true);
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
 
         try {
             ChannelFuture future = serverBootstrap.bind(this.serviceAddr, this.port).sync();
@@ -98,6 +104,7 @@ public class LRpcProvider implements InitializingBean, BeanPostProcessor {
             serviceMeta.setServiceName(serviceName);
             serviceMeta.setServiceVersion(serviceVersion);
 
+            rpcServiceMap.put(LRpcServiceHelper.buildServiceKey(serviceMeta.getServiceName(), serviceMeta.getServiceVersion()), bean);
             try {
                 registryService.registry(serviceMeta);
             } catch (Exception e) {

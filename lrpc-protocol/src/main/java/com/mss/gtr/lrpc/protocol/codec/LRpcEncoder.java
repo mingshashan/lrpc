@@ -1,25 +1,22 @@
 package com.mss.gtr.lrpc.protocol.codec;
 
-import com.mss.gtr.lrpc.core.LRpcException;
+import com.mss.gtr.lrpc.protocol.LRpcProtocol;
 import com.mss.gtr.lrpc.protocol.MessageHeader;
-import com.mss.gtr.lrpc.protocol.protocol.MessageType;
-import com.mss.gtr.lrpc.protocol.protocol.ProtocolConstant;
 import com.mss.gtr.lrpc.protocol.serialization.LRpcSerialization;
 import com.mss.gtr.lrpc.protocol.serialization.SerializationFactory;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.MessageToByteEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * 编码器
  */
-public class LRpcEncoder extends ByteToMessageDecoder {
+public class LRpcEncoder extends MessageToByteEncoder<LRpcProtocol<Object>> {
 
     private static final Logger logger = LoggerFactory.getLogger(LRpcEncoder.class);
+
 
     /**
      * +---------------------------------------------------------------+
@@ -31,56 +28,24 @@ public class LRpcEncoder extends ByteToMessageDecoder {
      * +---------------------------------------------------------------+
      *
      * @param ctx
-     * @param in
+     * @param msg
      * @param out
      * @throws Exception
      */
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, LRpcProtocol<Object> msg, ByteBuf out) throws Exception {
+        MessageHeader header = msg.getMessageHeader();
+        out.writeShort(header.getMagic());
+        out.writeByte(header.getVersion());
+        out.writeByte(header.getSerialization());
+        out.writeByte(header.getMsgType());
+        out.writeByte(header.getStatus());
+        out.writeLong(header.getRequestId());
+        LRpcSerialization serialization = SerializationFactory.getSerialization(header.getSerialization());
 
-        if (in.readableBytes() < ProtocolConstant.LRPC_HEADER_LENGTH) {
-            logger.warn("the receive message is not a complete message");
-            return;
-        }
-
-        in.markReaderIndex();
-
-        short magic = in.readShort();
-        if (ProtocolConstant.LRPC_MAGIC != magic) {
-            throw new LRpcException("magic number is illegal, " + magic);
-        }
-
-        byte version = in.readByte();
-        byte serialization = in.readByte();
-        byte msgType = in.readByte();
-        byte status = in.readByte();
-        long requestId = in.readLong();
-        int msgLength = in.readInt();
-
-        if (in.readableBytes() < msgLength) {
-            logger.warn("the message is not complete.");
-
-            // 设置readIndex为读之前mark的位置
-            in.resetReaderIndex();
-            return;
-        }
-
-        byte[] data = new byte[msgLength];
-        in.readBytes(data);
-
-        MessageType messageType = MessageType.getMessageType(msgType);
-
-        MessageHeader header = new MessageHeader();
-        header.setMagic(magic);
-        header.setVersion(version);
-        header.setSerialization(serialization);
-        header.setMsgType(msgType);
-        header.setStatus(status);
-        header.setRequestId(requestId);
-        header.setMsgLength(msgLength);
-
-        LRpcSerialization lRpcSerialization = SerializationFactory.getSerialization(serialization);
-
-
+        byte[] data = serialization.serialize(msg.getBody());
+        out.writeInt(data.length);
+        out.writeBytes(data);
     }
+
 }
