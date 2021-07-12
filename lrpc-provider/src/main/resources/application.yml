@@ -9,3 +9,7 @@ lrpc:
   port: 15151
   registry-addr: 127.0.0.1:12181
   registry-type: ZOOKEEPER
+
+eureka:
+  client:
+    enabled: false

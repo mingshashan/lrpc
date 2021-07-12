@@ -37,7 +37,8 @@ public class LRpcInvokerProxy implements InvocationHandler {
         long requestId = LRpcRequestHolder.REQUEST_ID_GEN.incrementAndGet();
         messageHeader.setMagic(ProtocolConstant.LRPC_MAGIC);
         messageHeader.setMsgType((byte) MessageType.REQUEST.getType());
-        messageHeader.setSerialization((byte) SerializationType.Hessian.getType());
+        // messageHeader.setSerialization((byte) SerializationType.Hessian.getType());
+        messageHeader.setSerialization((byte) SerializationType.JSON.getType());
         messageHeader.setVersion(ProtocolConstant.LRPC_VERSION);
         messageHeader.setStatus(ProtocolConstant.LRPC_STATUS_DEFAULT);
         messageHeader.setRequestId(requestId);
@@ -54,6 +55,7 @@ public class LRpcInvokerProxy implements InvocationHandler {
 
         LRpcConsumer lRpcConsumer = new LRpcConsumer();
         LRpcFuture<LRpcResponse> future =
+
                 new LRpcFuture<>(new DefaultPromise<>(new DefaultEventLoop()), timeout);
 
         LRpcRequestHolder.REQUEST_MAP.put(requestId, future);

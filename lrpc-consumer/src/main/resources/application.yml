@@ -10,3 +10,7 @@ lrpc:
   registry-type: ZOOKEEPER
   timeout: 3000
   service-version: 1.0
+
+eureka:
+  client:
+    enabled: false
